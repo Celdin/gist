@@ -1,10 +1,19 @@
 package gistfile;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
+
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 
 public class CodeSearcher implements CodeSearchEngineFile {
 
+	public org.jdom2.Document init(File f) throws JDOMException, IOException{
+		SAXBuilder sxb = new SAXBuilder();
+        org.jdom2.Document doc = sxb.build(f);
+        return doc;
+	}
 	@Override
 	public gistfile.CodeSearchEngine.Type findType(final String className,
 			final File data) {
