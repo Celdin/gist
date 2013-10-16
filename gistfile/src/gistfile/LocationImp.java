@@ -1,12 +1,11 @@
 package gistfile;
 
-
-public class Location implements CodeSearchEngine.Location {
+public class LocationImp implements CodeSearchEngine.Location {
 
 	private final String filePath;
 	private final int lineNumber;
 
-	public Location(final String filePath, final int lineNumber) {
+	public LocationImp(final String filePath, final int lineNumber) {
 		super();
 		this.filePath = filePath;
 		this.lineNumber = lineNumber;

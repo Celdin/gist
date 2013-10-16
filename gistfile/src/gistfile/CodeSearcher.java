@@ -11,10 +11,6 @@ import org.jdom2.xpath.XPath;
 
 public class CodeSearcher implements CodeSearchEngineFile {
 
-	
-
-
-
 	public org.jdom2.Document init(final File f) throws JDOMException,
 			IOException {
 		final SAXBuilder sxb = new SAXBuilder();
@@ -25,21 +21,39 @@ public class CodeSearcher implements CodeSearchEngineFile {
 	@SuppressWarnings("deprecation")
 	@Override
 	public gistfile.CodeSearchEngine.Type findType(final String className,
-			final File data) {
+			final File data) throws JDOMException, IOException {
 		final Type type;
-		try {
-			final Element racine = init(data).getRootElement();
-			final XPath xpa = XPath.newInstance("//type/[name=\"" + className
-					+ "\"]");
-			xpa.selectNodes(racine);
+		final Element racine = init(data).getRootElement();
+		XPath xpa = XPath.newInstance("//type[name=\"" + className + "\"]/*");
+		final List<?> res = xpa.selectNodes(racine);
+		if (res.iterator().hasNext()) {
+			final Element noeudCourant = (Element) res.iterator().next();
 
-			// type = new Type(xpa., className, null, null);
-		} catch (final JDOMException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			xpa = XPath.newInstance("./name");
+			final String name = xpa.valueOf(noeudCourant);
+			xpa = XPath.newInstance("./specifer");
+			TypeKind kind;
+			if (xpa.valueOf(noeudCourant) == "class") {
+				kind = TypeKind.CLASS;
+			} else if (xpa.valueOf(noeudCourant) == "interface") {
+				kind = TypeKind.INTERFACE;
+			} else if (xpa.valueOf(noeudCourant) == "enum") {
+				kind = TypeKind.ENUM;
+			} else if (xpa.valueOf(noeudCourant) == "primitive") {
+				kind = TypeKind.PRIMITIVE;
+			} else if (xpa.valueOf(noeudCourant) == "exeption") {
+				kind = TypeKind.EXCEPTION;
+			} else if (xpa.valueOf(noeudCourant) == "annotation") {
+				kind = TypeKind.ANNOTATION;
+			} else {
+				kind = null;
+			}
+
+			final LocationImp declaration = new LocationImp("dtc", 420);
+
+			type = new TypeImp(name, name, kind, declaration);
+
+			return type;
 		}
 		return null;
 	}
@@ -138,13 +152,6 @@ public class CodeSearcher implements CodeSearchEngineFile {
 	@Override
 	public List<gistfile.CodeSearchEngine.Location> findCatchOf(
 			final String exceptionName, final File data) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<gistfile.CodeSearchEngine.Type> findClassesAnnotatedWith(
-			final String annotationName, final File data) {
 		// TODO Auto-generated method stub
 		return null;
 	}

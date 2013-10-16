@@ -3,14 +3,14 @@ package gistfile;
 import gistfile.CodeSearchEngine.Location;
 
 
-public class Type implements CodeSearchEngine.Type {
+public class TypeImp implements CodeSearchEngine.Type {
 
 	private final String name;
 	private final String fullyQualifiedPackageName;
 	private final gistfile.CodeSearchEngine.TypeKind kind;
 	private final Location declaration;
 
-	public Type(final String name, final String fullyQualifiedPackageName,
+	public TypeImp(final String name, final String fullyQualifiedPackageName,
 			final gistfile.CodeSearchEngine.TypeKind kind,
 			final Location declaration) {
 		super();
