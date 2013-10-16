@@ -2,8 +2,14 @@ package gistfile;
 
 import gistfile.CodeSearchEngine.Location;
 
-
 public class TypeImp implements CodeSearchEngine.Type {
+
+	@Override
+	public String toString() {
+		return "TypeImp [name=" + name + ", fullyQualifiedPackageName="
+				+ fullyQualifiedPackageName + ", kind=" + kind
+				+ ", declaration=" + declaration + "]";
+	}
 
 	private final String name;
 	private final String fullyQualifiedPackageName;

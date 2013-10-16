@@ -25,13 +25,15 @@ public class CodeSearcher implements CodeSearchEngineFile {
 		final Type type;
 		final Element racine = init(data).getRootElement();
 		XPath xpa = XPath.newInstance("//type[name=\"" + className + "\"]/*");
+
 		final List<?> res = xpa.selectNodes(racine);
 		if (res.iterator().hasNext()) {
 			final Element noeudCourant = (Element) res.iterator().next();
 
-			xpa = XPath.newInstance("./name");
+			xpa = XPath.newInstance("../name");
 			final String name = xpa.valueOf(noeudCourant);
-			xpa = XPath.newInstance("./specifer");
+			System.out.println(name);
+			xpa = XPath.newInstance("../specifer");
 			TypeKind kind;
 			if (xpa.valueOf(noeudCourant) == "class") {
 				kind = TypeKind.CLASS;
@@ -46,7 +48,7 @@ public class CodeSearcher implements CodeSearchEngineFile {
 			} else if (xpa.valueOf(noeudCourant) == "annotation") {
 				kind = TypeKind.ANNOTATION;
 			} else {
-				kind = null;
+				kind = TypeKind.PRIMITIVE;
 			}
 
 			final LocationImp declaration = new LocationImp("dtc", 420);
