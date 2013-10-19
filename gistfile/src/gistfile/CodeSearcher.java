@@ -24,7 +24,7 @@ public class CodeSearcher implements CodeSearchEngineFile {
 			final File data) throws JDOMException, IOException {
 		final Type type;
 		final Element racine = init(data).getRootElement();
-		XPath xpa = XPath.newInstance("//type[name=\"" + className + "\"]/*");
+		XPath xpa = XPath.newInstance("//*[name=\"" + className + "\"]/*");
 
 		final List<?> res = xpa.selectNodes(racine);
 		if (res.iterator().hasNext()) {
@@ -33,24 +33,21 @@ public class CodeSearcher implements CodeSearchEngineFile {
 			xpa = XPath.newInstance("../name");
 			final String name = xpa.valueOf(noeudCourant);
 			System.out.println(name);
-			xpa = XPath.newInstance("../specifer");
-			TypeKind kind;
-			if (xpa.valueOf(noeudCourant) == "class") {
+			xpa = XPath.newInstance("..");
+			final TypeKind kind;
+			if (xpa.valueOf(noeudCourant).contains("class")) {
 				kind = TypeKind.CLASS;
-			} else if (xpa.valueOf(noeudCourant) == "interface") {
+			} else if (xpa.valueOf(noeudCourant).contains("interface")) {
 				kind = TypeKind.INTERFACE;
-			} else if (xpa.valueOf(noeudCourant) == "enum") {
+			} else if (xpa.valueOf(noeudCourant).contains("enum")) {
 				kind = TypeKind.ENUM;
-			} else if (xpa.valueOf(noeudCourant) == "primitive") {
-				kind = TypeKind.PRIMITIVE;
-			} else if (xpa.valueOf(noeudCourant) == "exeption") {
+			} else if (xpa.valueOf(noeudCourant).contains("exeption")) {
 				kind = TypeKind.EXCEPTION;
-			} else if (xpa.valueOf(noeudCourant) == "annotation") {
+			} else if (xpa.valueOf(noeudCourant).contains("annotation")) {
 				kind = TypeKind.ANNOTATION;
 			} else {
 				kind = TypeKind.PRIMITIVE;
 			}
-
 			final LocationImp declaration = new LocationImp("dtc", 420);
 
 			type = new TypeImp(name, name, kind, declaration);
@@ -90,8 +87,13 @@ public class CodeSearcher implements CodeSearchEngineFile {
 
 	@Override
 	public List<gistfile.CodeSearchEngine.Method> findMethodsOf(
-			final String className, final File data) {
-		// TODO Auto-generated method stub
+			final String className, final File data) throws JDOMException,
+			IOException {
+		final List<Method> list;
+		final Element racine = init(data).getRootElement();
+		final XPath xpa = XPath.newInstance("//class[name=\"" + className
+				+ "\"]/");
+
 		return null;
 	}
 

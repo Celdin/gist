@@ -68,8 +68,12 @@ public interface CodeSearchEngine<T> {
 
 	/**
 	 * returns all methods of typeName (does not consider the inherited methods)
+	 * 
+	 * @throws IOException
+	 * @throws JDOMException
 	 */
-	List<Method> findMethodsOf(String typeName, T data);
+	List<Method> findMethodsOf(String typeName, T data) throws JDOMException,
+			IOException;
 
 	/** returns all methods returning typeName */
 	List<Method> findMethodsReturning(String typeName, T data);
