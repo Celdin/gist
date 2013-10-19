@@ -2,6 +2,7 @@ package gistfile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jdom2.Element;
@@ -50,11 +51,11 @@ public class CodeSearcher implements CodeSearchEngineFile {
 			}
 			final LocationImp declaration = new LocationImp("dtc", 420);
 
-			type = new TypeImp(name, name, kind, declaration);
+			type = new TypeImp(name, "", kind, null);
 
 			return type;
 		}
-		return null;
+		return new TypeImp(className, "", null, null);
 	}
 
 	@Override
@@ -85,15 +86,26 @@ public class CodeSearcher implements CodeSearchEngineFile {
 		return null;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public List<gistfile.CodeSearchEngine.Method> findMethodsOf(
 			final String className, final File data) throws JDOMException,
 			IOException {
-		final List<Method> list;
+		final List<Method> list = new ArrayList<Method>();
 		final Element racine = init(data).getRootElement();
-		final XPath xpa = XPath.newInstance("//class[name=\"" + className
-				+ "\"]/");
-
+		MethodImp method;
+		XPath xpa = XPath.newInstance("//class[name=\"" + className
+				+ "\"]/*/function");
+		final List<?> res = (xpa.selectNodes(racine));
+		Element noeudCourant;
+		while (res.iterator().hasNext()) {
+			noeudCourant = (Element) res.iterator().next();
+			xpa = XPath.newInstance("/name");
+			method = new MethodImp(new TypeImp((TypeImp) findType(
+					xpa.valueOf(noeudCourant), data)),
+					xpa.valueOf(noeudCourant), null);
+			list.add(method);
+		}
 		return null;
 	}
 

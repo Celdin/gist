@@ -11,6 +11,14 @@ public class TypeImp implements CodeSearchEngine.Type {
 				+ ", declaration=" + declaration + "]";
 	}
 
+	public TypeImp(final TypeImp type) {
+		super();
+		name = type.name;
+		fullyQualifiedPackageName = type.fullyQualifiedPackageName;
+		kind = type.kind;
+		declaration = type.declaration;
+	}
+
 	private final String name;
 	private final String fullyQualifiedPackageName;
 	private final gistfile.CodeSearchEngine.TypeKind kind;
