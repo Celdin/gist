@@ -3,6 +3,7 @@ package gistfile;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.jdom2.Element;
@@ -93,20 +94,21 @@ public class CodeSearcher implements CodeSearchEngineFile {
 			IOException {
 		final List<Method> list = new ArrayList<Method>();
 		final Element racine = init(data).getRootElement();
-		MethodImp method;
 		XPath xpa = XPath.newInstance("//class[name=\"" + className
 				+ "\"]/*/function");
 		final List<?> res = (xpa.selectNodes(racine));
 		Element noeudCourant;
-		while (res.iterator().hasNext()) {
-			noeudCourant = (Element) res.iterator().next();
-			xpa = XPath.newInstance("/name");
+		final Iterator its = res.iterator();
+		while (its.hasNext()) {
+			System.out.println("method trouve :");
+			noeudCourant = (Element) its.next();
+			xpa = XPath.newInstance("name");
 			method = new MethodImp(new TypeImp((TypeImp) findType(
 					xpa.valueOf(noeudCourant), data)),
 					xpa.valueOf(noeudCourant), null);
 			list.add(method);
 		}
-		return null;
+		return list;
 	}
 
 	@Override
