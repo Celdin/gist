@@ -32,7 +32,7 @@ public class CodeSearcher implements CodeSearchEngineFile {
 		if (res.iterator().hasNext()) {
 			final Element noeudCourant = (Element) res.iterator().next();
 
-			xpa = XPath.newInstance("../name");
+			xpa = XPath.newInstance("../type/name");
 			final String name = xpa.valueOf(noeudCourant);
 			System.out.println(name);
 			xpa = XPath.newInstance("..");
@@ -47,8 +47,10 @@ public class CodeSearcher implements CodeSearchEngineFile {
 				kind = TypeKind.EXCEPTION;
 			} else if (xpa.valueOf(noeudCourant).contains("annotation")) {
 				kind = TypeKind.ANNOTATION;
-			} else {
+			} else if (xpa.valueOf(noeudCourant).contains("primitive")) {
 				kind = TypeKind.PRIMITIVE;
+			} else {
+				kind = null;
 			}
 			final LocationImp declaration = new LocationImp("dtc", 420);
 
@@ -94,13 +96,13 @@ public class CodeSearcher implements CodeSearchEngineFile {
 			IOException {
 		final List<Method> list = new ArrayList<Method>();
 		final Element racine = init(data).getRootElement();
+		MethodImp method;
 		XPath xpa = XPath.newInstance("//class[name=\"" + className
 				+ "\"]/*/function");
 		final List<?> res = (xpa.selectNodes(racine));
 		Element noeudCourant;
-		final Iterator its = res.iterator();
+		final Iterator<?> its = res.iterator();
 		while (its.hasNext()) {
-			System.out.println("method trouve :");
 			noeudCourant = (Element) its.next();
 			xpa = XPath.newInstance("name");
 			method = new MethodImp(new TypeImp((TypeImp) findType(
