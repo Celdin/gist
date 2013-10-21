@@ -51,8 +51,10 @@ public interface CodeSearchEngine<T> {
 	 */
 	Type findType(String typeName, T data) throws JDOMException, IOException;
 
-	/** returns all subtypes of type typeName */
-	List<Type> findSubTypesOf(String typeName, T data);
+	/** returns all subtypes of type typeName 
+	 * @throws IOException 
+	 * @throws JDOMException */
+	List<Type> findSubTypesOf(String typeName, T data) throws JDOMException, IOException;
 
 	/** returns all fields typed with typeName */
 	List<Field> findFieldsTypedWith(String typeName, T data);

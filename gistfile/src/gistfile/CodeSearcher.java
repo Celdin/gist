@@ -62,9 +62,36 @@ public class CodeSearcher implements CodeSearchEngineFile {
 
 	@Override
 	public List<gistfile.CodeSearchEngine.Type> findSubTypesOf(
-			final String className, final File data) {
+			final String className, final File data) throws JDOMException, IOException {
 		// TODO Auto-generated method stub
-		return null;
+		final List<Type> listType = new ArrayList<CodeSearchEngine.Type>();
+		final Element racine = init(data).getRootElement();
+		System.out.println("//class[extends/super/name=\""+className+"\"]");
+		XPath xpa = XPath.newInstance("//class[super/extends/name=\""+className+"\"]");
+		List res = xpa.selectNodes(racine);
+		Iterator iter = res.iterator();
+		
+        Element noeudCourant = null;
+		System.out.println(res.size());
+		while (iter.hasNext()){
+			noeudCourant = (Element) iter.next();
+            xpa = XPath.newInstance("./name");
+            String loc= xpa.valueOf(noeudCourant);
+
+			listType.add(findType(loc, data));
+		}
+		for(int i =0; i<listType.size();i++){
+			listType.addAll(findSubTypesOf(listType.get(i).getName(), data));
+		}
+		/*xpa = XPath.newInstance("//catch[param/decl/type/name=\"" + className + "\"]//expr_stmt//name");
+		res = xpa.selectNodes(racine);
+		iter = res.iterator();
+		while (iter.hasNext()){
+			noeudCourant = (Element) iter.next();
+			System.out.println(xpa.valueOf(noeudCourant));
+			listType.add(findType(xpa.valueOf(noeudCourant), data));
+		}*/
+		return listType;
 	}
 
 	@Override
