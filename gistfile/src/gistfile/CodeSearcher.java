@@ -61,36 +61,30 @@ public class CodeSearcher implements CodeSearchEngineFile {
 	}
 
 	@Override
+	//probleme avec la recursivité
 	public List<gistfile.CodeSearchEngine.Type> findSubTypesOf(
 			final String className, final File data) throws JDOMException, IOException {
 		// TODO Auto-generated method stub
 		final List<Type> listType = new ArrayList<CodeSearchEngine.Type>();
 		final Element racine = init(data).getRootElement();
-		System.out.println("//class[extends/super/name=\""+className+"\"]");
-		XPath xpa = XPath.newInstance("//class[super/extends/name=\""+className+"\"]");
+		XPath xpa = XPath.newInstance("//class[super//name=\""+className+"\"]");
 		List res = xpa.selectNodes(racine);
 		Iterator iter = res.iterator();
 		
         Element noeudCourant = null;
-		System.out.println(res.size());
 		while (iter.hasNext()){
 			noeudCourant = (Element) iter.next();
             xpa = XPath.newInstance("./name");
             String loc= xpa.valueOf(noeudCourant);
+            
+            Type type = new TypeImp(loc, "", TypeKind.CLASS, null);
 
-			listType.add(findType(loc, data));
+			listType.add(type);
+			listType.addAll(findSubTypesOf(loc, data));
+
 		}
-		for(int i =0; i<listType.size();i++){
-			listType.addAll(findSubTypesOf(listType.get(i).getName(), data));
-		}
-		/*xpa = XPath.newInstance("//catch[param/decl/type/name=\"" + className + "\"]//expr_stmt//name");
-		res = xpa.selectNodes(racine);
-		iter = res.iterator();
-		while (iter.hasNext()){
-			noeudCourant = (Element) iter.next();
-			System.out.println(xpa.valueOf(noeudCourant));
-			listType.add(findType(xpa.valueOf(noeudCourant), data));
-		}*/
+		
+	
 		return listType;
 	}
 
