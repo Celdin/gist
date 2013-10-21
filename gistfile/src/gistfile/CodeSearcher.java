@@ -34,7 +34,6 @@ public class CodeSearcher implements CodeSearchEngineFile {
 
 			xpa = XPath.newInstance("../type/name");
 			final String name = xpa.valueOf(noeudCourant);
-			System.out.println(name);
 			xpa = XPath.newInstance("..");
 			final TypeKind kind;
 			if (xpa.valueOf(noeudCourant).contains("class")) {
@@ -50,7 +49,7 @@ public class CodeSearcher implements CodeSearchEngineFile {
 			} else if (xpa.valueOf(noeudCourant).contains("primitive")) {
 				kind = TypeKind.PRIMITIVE;
 			} else {
-				kind = null;
+				kind = TypeKind.PRIMITIVE;
 			}
 			final LocationImp declaration = new LocationImp("dtc", 420);
 
@@ -96,6 +95,7 @@ public class CodeSearcher implements CodeSearchEngineFile {
 			IOException {
 		final List<Method> list = new ArrayList<Method>();
 		final Element racine = init(data).getRootElement();
+		String name = "";
 		MethodImp method;
 		XPath xpa = XPath.newInstance("//class[name=\"" + className
 				+ "\"]/*/function");
@@ -105,9 +105,26 @@ public class CodeSearcher implements CodeSearchEngineFile {
 		while (its.hasNext()) {
 			noeudCourant = (Element) its.next();
 			xpa = XPath.newInstance("name");
-			method = new MethodImp(new TypeImp((TypeImp) findType(
-					xpa.valueOf(noeudCourant), data)),
-					xpa.valueOf(noeudCourant), null);
+			name = xpa.valueOf(noeudCourant);
+
+			xpa = XPath.newInstance("./parameter_list");
+			if (xpa.valueOf(noeudCourant).contains("()")) {
+				method = new MethodImp(new TypeImp((TypeImp) findType(name,
+						data)), name, null);
+			} else {
+				xpa = XPath.newInstance("./*/param");
+				final Iterator<?> its2 = xpa.selectNodes(noeudCourant)
+						.iterator();
+				final List<Type> types = new ArrayList<Type>();
+				while (its2.hasNext()) {
+					noeudCourant = (Element) its2.next();
+					xpa = XPath.newInstance("./*/type/name");
+					types.add(new TypeImp(xpa.valueOf(noeudCourant), "",
+							TypeKind.PRIMITIVE, null));
+				}
+				method = new MethodImp(new TypeImp((TypeImp) findType(name,
+						data)), name, types);
+			}
 			list.add(method);
 		}
 		return list;

@@ -12,7 +12,7 @@ public class MethodImp implements Method {
 	@Override
 	public String toString() {
 		return "MethodImp [type=" + type + ", name=" + name + ", paramaters="
-				+ paramaters + "]";
+				+ paramaters + "]\n";
 	}
 
 	private final String name;
