@@ -116,14 +116,28 @@ public class CodeSearcher implements CodeSearchEngineFile {
 	public List<gistfile.CodeSearchEngine.Field> findFieldsTypedWith(
 			final String className, final File data) {
 		// TODO Auto-generated method stub
+		
 		return null;
 	}
 
 	@Override
 	public List<gistfile.CodeSearchEngine.Location> findAllReadAccessesOf(
-			final gistfile.CodeSearchEngine.Field field, final File data) {
+			final gistfile.CodeSearchEngine.Field field, final File data) throws JDOMException {
+				return null;
 		// TODO Auto-generated method stub
+		/*XPath xpa = XPath.newInstance("//expr[name[1]=\""+ field +"\"]");
+		List res = xpa.selectNodes(racine);
+		Iterator iter = res.iterator();
+		Element noeudCourant = null;
+		while (iter.hasNext()){
+			noeudCourant = (Element) iter.next();
+            xpa = XPath.newInstance(".");
+            String loc;
+            loc= noeudCourant.getValue();
+            System.out.println(loc);
+		}
 		return null;
+		*/
 	}
 
 	@Override

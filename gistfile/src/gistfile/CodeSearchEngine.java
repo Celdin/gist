@@ -59,8 +59,9 @@ public interface CodeSearchEngine<T> {
 	/** returns all fields typed with typeName */
 	List<Field> findFieldsTypedWith(String typeName, T data);
 
-	/** returns all read accesses of the field given as parameter */
-	List<Location> findAllReadAccessesOf(Field field, T data);
+	/** returns all read accesses of the field given as parameter 
+	 * @throws JDOMException */
+	List<Location> findAllReadAccessesOf(Field field, T data) throws JDOMException;
 
 	/**
 	 * returns all write accesses of the field given as parameter (this.foo =
