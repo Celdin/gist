@@ -12,9 +12,10 @@ import org.jdom2.input.SAXBuilder;
 import org.jdom2.xpath.XPath;
 
 public class CodeSearcher implements CodeSearchEngineFile {
-
+	String path;
 	public org.jdom2.Document init(final File f) throws JDOMException,
 			IOException {
+		path = f.getAbsolutePath();
 		final SAXBuilder sxb = new SAXBuilder();
 		final org.jdom2.Document doc = sxb.build(f);
 		return doc;
@@ -32,8 +33,9 @@ public class CodeSearcher implements CodeSearchEngineFile {
 		if (res.iterator().hasNext()) {
 			final Element noeudCourant = (Element) res.iterator().next();
 
-			xpa = XPath.newInstance("../type/name");
-			final String name = xpa.valueOf(noeudCourant);
+			/*xpa = XPath.newInstance("../type/name");
+			final String name = xpa.valueOf(noeudCourant);**/
+			final String name = className;
 			xpa = XPath.newInstance("..");
 			final TypeKind kind;
 			if (xpa.valueOf(noeudCourant).contains("class")) {
@@ -51,7 +53,7 @@ public class CodeSearcher implements CodeSearchEngineFile {
 			} else {
 				kind = TypeKind.PRIMITIVE;
 			}
-			final LocationImp declaration = new LocationImp("dtc", 420);
+			final LocationImp declaration = new LocationImp(path);
 
 			type = new TypeImp(name, "", kind, null);
 
@@ -80,14 +82,37 @@ public class CodeSearcher implements CodeSearchEngineFile {
             Type type = new TypeImp(loc, "", TypeKind.CLASS, null);
 
 			listType.add(type);
-			listType.addAll(findSubTypesOf(loc, data));
+			listType.addAll(findSubTypesOfRec(loc, racine));
 
 		}
 		
 	
 		return listType;
 	}
+	public List<gistfile.CodeSearchEngine.Type> findSubTypesOfRec(
+			final String className, final Element racine) throws JDOMException, IOException {
+		// TODO Auto-generated method stub
+		final List<Type> listType = new ArrayList<CodeSearchEngine.Type>();
+		XPath xpa = XPath.newInstance("//class[super//name=\""+className+"\"]");
+		List res = xpa.selectNodes(racine);
+		Iterator iter = res.iterator();
+		
+        Element noeudCourant = null;
+		while (iter.hasNext()){
+			noeudCourant = (Element) iter.next();
+            xpa = XPath.newInstance("./name");
+            String loc= xpa.valueOf(noeudCourant);
+            
+            Type type = new TypeImp(loc, "", TypeKind.CLASS, null);
 
+			listType.add(type);
+			listType.addAll(findSubTypesOfRec(loc, racine));
+
+		}
+		
+	
+		return listType;
+	}
 	@Override
 	public List<gistfile.CodeSearchEngine.Field> findFieldsTypedWith(
 			final String className, final File data) {

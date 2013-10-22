@@ -12,5 +12,6 @@ public class Main {
 		//System.out.println(searcher.findMethodsOf("AbstractAction", new File(
 		//		"src/resource/jface.xml")));
 		System.out.println(searcher.findSubTypesOf("Exception",  new File("src/resource/lucene.xml")));
+		//System.out.println(searcher.findType("SortedMapBackedCache", new File("src/resource/lucene.xml")));
 	}
 }
