@@ -13,20 +13,20 @@ import org.jdom2.xpath.XPath;
 
 public class CodeSearcher implements CodeSearchEngineFile {
 	String path;
-	public org.jdom2.Document init(final File f) throws JDOMException,
+	Element racine;
+	public  CodeSearcher(final File f) throws JDOMException,
 			IOException {
 		path = f.getAbsolutePath();
 		final SAXBuilder sxb = new SAXBuilder();
 		final org.jdom2.Document doc = sxb.build(f);
-		return doc;
-	}
+		racine = doc.getRootElement();
+}
 
 	@SuppressWarnings("deprecation")
 	@Override
 	public gistfile.CodeSearchEngine.Type findType(final String className,
 			final File data) throws JDOMException, IOException {
 		final Type type;
-		final Element racine = init(data).getRootElement();
 		XPath xpa = XPath.newInstance("//*[name=\"" + className + "\"]/*");
 
 		final List<?> res = xpa.selectNodes(racine);
@@ -68,21 +68,20 @@ public class CodeSearcher implements CodeSearchEngineFile {
 			final String className, final File data) throws JDOMException, IOException {
 		// TODO Auto-generated method stub
 		final List<Type> listType = new ArrayList<CodeSearchEngine.Type>();
-		final Element racine = init(data).getRootElement();
-		XPath xpa = XPath.newInstance("//class[super//name=\""+className+"\"]");
+		XPath xpa = XPath.newInstance("//class[super//name=\""+className+"\"]/name");
 		List res = xpa.selectNodes(racine);
 		Iterator iter = res.iterator();
 		
         Element noeudCourant = null;
 		while (iter.hasNext()){
 			noeudCourant = (Element) iter.next();
-            xpa = XPath.newInstance("./name");
+            xpa = XPath.newInstance(".");
             String loc= xpa.valueOf(noeudCourant);
             
             Type type = new TypeImp(loc, "", TypeKind.CLASS, null);
 
 			listType.add(type);
-			listType.addAll(findSubTypesOfRec(loc, racine));
+			listType.addAll(findSubTypesOf(loc, data));
 
 		}
 		
@@ -140,7 +139,6 @@ public class CodeSearcher implements CodeSearchEngineFile {
 			final String className, final File data) throws JDOMException,
 			IOException {
 		final List<Method> list = new ArrayList<Method>();
-		final Element racine = init(data).getRootElement();
 		String name = "";
 		MethodImp method;
 		XPath xpa = XPath.newInstance("//class[name=\"" + className
