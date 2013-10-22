@@ -27,37 +27,40 @@ public class CodeSearcher implements CodeSearchEngineFile {
 	public gistfile.CodeSearchEngine.Type findType(final String className,
 			final File data) throws JDOMException, IOException {
 		final Type type;
-		XPath xpa = XPath.newInstance("//*[name=\"" + className + "\"]/*");
+		XPath xpa = XPath.newInstance("//*[name=\"" + className + "\"]/name");
 
 		final List<?> res = xpa.selectNodes(racine);
 		if (res.iterator().hasNext()) {
 			final Element noeudCourant = (Element) res.iterator().next();
-
+			
 			/*xpa = XPath.newInstance("../type/name");
 			final String name = xpa.valueOf(noeudCourant);**/
 			final String name = className;
 			xpa = XPath.newInstance("..");
-			final TypeKind kind;
-			if (xpa.valueOf(noeudCourant).contains("class")) {
-				kind = TypeKind.CLASS;
-			} else if (xpa.valueOf(noeudCourant).contains("interface")) {
-				kind = TypeKind.INTERFACE;
-			} else if (xpa.valueOf(noeudCourant).contains("enum")) {
+			TypeKind kind = null;
+			Element type1 = noeudCourant.getParentElement();
+			String bal = type1.getName();
+			if (bal.equals("class"))
+			{
+				xpa =XPath.newInstance("./@type");
+				String inter = xpa.valueOf(type1);
+				System.out.println(inter);
+				if(inter.equals("interface")){
+					kind= TypeKind.INTERFACE;
+				}
+				else
+					kind = TypeKind.CLASS;
+
+			} else if (bal.equals("enum")) {
 				kind = TypeKind.ENUM;
-			} else if (xpa.valueOf(noeudCourant).contains("exeption")) {
-				kind = TypeKind.EXCEPTION;
-			} else if (xpa.valueOf(noeudCourant).contains("annotation")) {
-				kind = TypeKind.ANNOTATION;
-			} else if (xpa.valueOf(noeudCourant).contains("primitive")) {
-				kind = TypeKind.PRIMITIVE;
-			} else {
+			}  else {
 				kind = TypeKind.PRIMITIVE;
 			}
 			final LocationImp declaration = new LocationImp(path);
 
-			type = new TypeImp(name, "", kind, null);
+			TypeImp typef = new TypeImp(name, "", kind, null);
 
-			return type;
+			return typef;
 		}
 		return new TypeImp(className, "", null, null);
 	}
