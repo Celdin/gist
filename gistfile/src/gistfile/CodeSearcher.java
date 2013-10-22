@@ -13,6 +13,7 @@ import org.jdom2.xpath.XPath;
 
 public class CodeSearcher implements CodeSearchEngineFile {
 	String path;
+
 	public org.jdom2.Document init(final File f) throws JDOMException,
 			IOException {
 		path = f.getAbsolutePath();
@@ -33,12 +34,14 @@ public class CodeSearcher implements CodeSearchEngineFile {
 		if (res.iterator().hasNext()) {
 			final Element noeudCourant = (Element) res.iterator().next();
 
-			/*xpa = XPath.newInstance("../type/name");
-			final String name = xpa.valueOf(noeudCourant);**/
+			/*
+			 * xpa = XPath.newInstance("../type/name"); final String name =
+			 * xpa.valueOf(noeudCourant);*
+			 */
 			final String name = className;
 			xpa = XPath.newInstance("..");
 			final TypeKind kind;
-			if (xpa.valueOf(noeudCourant).contains("class")) {
+			if (noeudCourant.getNamespace().toString().contains("class")) {
 				kind = TypeKind.CLASS;
 			} else if (xpa.valueOf(noeudCourant).contains("interface")) {
 				kind = TypeKind.INTERFACE;
@@ -51,11 +54,11 @@ public class CodeSearcher implements CodeSearchEngineFile {
 			} else if (xpa.valueOf(noeudCourant).contains("primitive")) {
 				kind = TypeKind.PRIMITIVE;
 			} else {
-				kind = TypeKind.PRIMITIVE;
+				kind = null;
 			}
 			final LocationImp declaration = new LocationImp(path);
 
-			type = new TypeImp(name, "", kind, null);
+			type = new TypeImp(className, "", kind, null);
 
 			return type;
 		}
@@ -63,56 +66,60 @@ public class CodeSearcher implements CodeSearchEngineFile {
 	}
 
 	@Override
-	//probleme avec la recursivité
+	// probleme avec la recursivité
 	public List<gistfile.CodeSearchEngine.Type> findSubTypesOf(
-			final String className, final File data) throws JDOMException, IOException {
+			final String className, final File data) throws JDOMException,
+			IOException {
 		// TODO Auto-generated method stub
 		final List<Type> listType = new ArrayList<CodeSearchEngine.Type>();
 		final Element racine = init(data).getRootElement();
-		XPath xpa = XPath.newInstance("//class[super//name=\""+className+"\"]");
-		List res = xpa.selectNodes(racine);
-		Iterator iter = res.iterator();
-		
-        Element noeudCourant = null;
-		while (iter.hasNext()){
+		XPath xpa = XPath.newInstance("//class[super//name=\"" + className
+				+ "\"]");
+		final List res = xpa.selectNodes(racine);
+		final Iterator iter = res.iterator();
+
+		Element noeudCourant = null;
+		while (iter.hasNext()) {
 			noeudCourant = (Element) iter.next();
-            xpa = XPath.newInstance("./name");
-            String loc= xpa.valueOf(noeudCourant);
-            
-            Type type = new TypeImp(loc, "", TypeKind.CLASS, null);
+			xpa = XPath.newInstance("./name");
+			final String loc = xpa.valueOf(noeudCourant);
+
+			final Type type = new TypeImp(loc, "", TypeKind.CLASS, null);
 
 			listType.add(type);
 			listType.addAll(findSubTypesOfRec(loc, racine));
 
 		}
-		
-	
+
 		return listType;
 	}
+
 	public List<gistfile.CodeSearchEngine.Type> findSubTypesOfRec(
-			final String className, final Element racine) throws JDOMException, IOException {
+			final String className, final Element racine) throws JDOMException,
+			IOException {
 		// TODO Auto-generated method stub
 		final List<Type> listType = new ArrayList<CodeSearchEngine.Type>();
-		XPath xpa = XPath.newInstance("//class[super//name=\""+className+"\"]");
-		List res = xpa.selectNodes(racine);
-		Iterator iter = res.iterator();
-		
-        Element noeudCourant = null;
-		while (iter.hasNext()){
+		XPath xpa = XPath.newInstance("//class[super//name=\"" + className
+				+ "\"]");
+		final List res = xpa.selectNodes(racine);
+		final Iterator iter = res.iterator();
+
+		Element noeudCourant = null;
+		while (iter.hasNext()) {
 			noeudCourant = (Element) iter.next();
-            xpa = XPath.newInstance("./name");
-            String loc= xpa.valueOf(noeudCourant);
-            
-            Type type = new TypeImp(loc, "", TypeKind.CLASS, null);
+			xpa = XPath.newInstance("./name");
+			final String loc = xpa.valueOf(noeudCourant);
+
+			final Type type = new TypeImp(loc, "", TypeKind.CLASS, null);
 
 			listType.add(type);
 			listType.addAll(findSubTypesOfRec(loc, racine));
 
 		}
-		
-	
+
 		return listType;
 	}
+
 	@Override
 	public List<gistfile.CodeSearchEngine.Field> findFieldsTypedWith(
 			final String className, final File data) {
@@ -142,6 +149,7 @@ public class CodeSearcher implements CodeSearchEngineFile {
 		final List<Method> list = new ArrayList<Method>();
 		final Element racine = init(data).getRootElement();
 		String name = "";
+		String type = "";
 		MethodImp method;
 		XPath xpa = XPath.newInstance("//class[name=\"" + className
 				+ "\"]/*/function");
@@ -150,12 +158,14 @@ public class CodeSearcher implements CodeSearchEngineFile {
 		final Iterator<?> its = res.iterator();
 		while (its.hasNext()) {
 			noeudCourant = (Element) its.next();
-			xpa = XPath.newInstance("name");
+			xpa = XPath.newInstance("type/name");
+			type = xpa.valueOf(noeudCourant);
+			xpa = XPath.newInstance("./name");
 			name = xpa.valueOf(noeudCourant);
 
 			xpa = XPath.newInstance("./parameter_list");
 			if (xpa.valueOf(noeudCourant).contains("()")) {
-				method = new MethodImp(new TypeImp((TypeImp) findType(name,
+				method = new MethodImp(new TypeImp((TypeImp) findType(type,
 						data)), name, null);
 			} else {
 				xpa = XPath.newInstance("./*/param");
@@ -165,10 +175,9 @@ public class CodeSearcher implements CodeSearchEngineFile {
 				while (its2.hasNext()) {
 					noeudCourant = (Element) its2.next();
 					xpa = XPath.newInstance("./*/type/name");
-					types.add(new TypeImp(xpa.valueOf(noeudCourant), "",
-							TypeKind.PRIMITIVE, null));
+					types.add(findType(xpa.valueOf(noeudCourant), data));
 				}
-				method = new MethodImp(new TypeImp((TypeImp) findType(name,
+				method = new MethodImp(new TypeImp((TypeImp) findType(type,
 						data)), name, types);
 			}
 			list.add(method);
